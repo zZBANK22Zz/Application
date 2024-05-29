@@ -1,12 +1,13 @@
 import MyNavbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import Title from "@/components/Title";
-import { Button } from "@nextui-org/react";
+import { Avatar, Button, Input, Textarea } from "@nextui-org/react";
+import { ChangeEventHandler, useState } from "react";
 
 // justify -> แกนหลัก
 // items -> แกนรอง
 
-const posts = [
+const DEFAULT_POSTS = [
   {
     author: {
       avatar:
@@ -18,50 +19,6 @@ const posts = [
     followings: 10,
     followers: 20,
   },
-  {
-    author: {
-      avatar:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4B4glHxuCLJAYdXwzux_mTtxvuIC1R_OjwosTUEtqnw&s",
-      name: "Tanakorn Karode2",
-      username: "tanakorn_karode1",
-    },
-    content: "Hello My name is Sainy!",
-    followings: 12,
-    followers: 23,
-  },
-  {
-    author: {
-      avatar:
-        "https://hips.hearstapps.com/hmg-prod/images/index-avatar-1665421955.jpg?crop=0.888888888888889xw:1xh;center,top",
-      name: "Tanakorn Karode2",
-      username: "tanakorn_karode4",
-    },
-    content: "Hello My name is Sainy!",
-    followings: 104,
-    followers: 25,
-  },
-  {
-    author: {
-      avatar:
-        "https://play-lh.googleusercontent.com/jA5PwYqtmoFS7StajBe2EawN4C8WDdltO68JcsrvYKSuhjcTap5QMETkloXSq5soqRBqFjuTAhh28AYrA6A=w240-h480-rw",
-      name: "Tanakorn Karode2",
-      username: "tanakorn_karode3",
-    },
-    content: "Hello My name is Sainy!",
-    followings: 104,
-    followers: 202,
-  },
-  {
-    author: {
-      avatar:
-        "https://play-lh.googleusercontent.com/jA5PwYqtmoFS7StajBe2EawN4C8WDdltO68JcsrvYKSuhjcTap5QMETkloXSq5soqRBqFjuTAhh28AYrA6A=w240-h480-rw",
-      name: "Tanakorn Karode2",
-      username: "tanakorn_karode3",
-    },
-    content: "Hello My name is Sainy434!",
-    followings: 103,
-    followers: 204,
-  },
 ];
 
 // [1,2,3,4,5]
@@ -69,31 +26,120 @@ const posts = [
 // Spread operator
 
 export default function Home() {
+  const [posts, setPosts] = useState(DEFAULT_POSTS);
+  const [content, setContent] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [followings, setFollowings] = useState(0);
+  const [followers, setFollowers] = useState(0);
+
+  const handleClick = () => {
+    const singlePost = {
+      author: {
+        avatar,
+        name,
+        username,
+      },
+      content, //content: content
+      followings,
+      followers,
+    };
+
+    setPosts([...posts, singlePost]);
+  };
+
+  const handleChangeUsername: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setName(e.target.value);
+  };
+
+  const handleChangeFollowings: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setFollowings(Number(e.target.value));
+  };
+
+  const handleChangeFollowers: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setFollowers(Number(e.target.value));
+  };
+
+  const handleChangeContent: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setContent(e.target.value);
+  };
+
+  const handleSelectFile: ChangeEventHandler<HTMLInputElement> = (e) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+
+      const fileReader = new FileReader();
+
+      fileReader.onload = (result) => {
+        setAvatar(fileReader.result as string);
+      };
+
+      fileReader.readAsDataURL(file);
+    }
+  };
+
   return (
     <main>
       <MyNavbar />
 
-      <div className="flex flex-col items-center space-y-2 py-2">
-        {/* <PostCard
-          author={post.author}
-          content={post.content}
-          followings={post.followings}
-          followers={post.followers}
-        /> */}
-        {/* {
-          [
-            <PostCard {...posts[0]} />,
-            <PostCard {...posts[1]} />,
-            <PostCard {...posts[2]} />,
-            <PostCard {...posts[3]} />,
-            <PostCard {...posts[4]} />,
-          ]
-        } */}
-        {
-          posts.map((item, index) => {
-            return <PostCard key={index} {...item}/>
-          })
-        }
+      <div className="grid grid-cols-3 gap-2 mx-20 my-2 mb-20">
+        {posts.map((item, index) => {
+          return <PostCard key={index} {...item} />;
+        })}
+      </div>
+
+      <div className="flex flex-col items-center pb-2">
+        <h3 className="mb-2">Create a post</h3>
+
+        <div>
+          <div className="flex justify-center mb-2">
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              <Avatar src={avatar} />
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleSelectFile}
+            />
+          </div>
+          <Input className="w-96 mb-2" label="Name" onChange={handleChangeName} />
+          <Input
+            className="w-96 mb-2"
+            label="Username"
+            onChange={handleChangeUsername}
+          />
+        </div>
+
+        <Textarea
+          rows={10}
+          placeholder="What's on your mind?"
+          className="w-96 mb-2"
+          onChange={handleChangeContent}
+        />
+
+        <Input
+          label="followings"
+          className="w-96 mb-2"
+          value={followings.toString()}
+          onChange={handleChangeFollowings}
+        />
+        <Input
+          label="followers"
+          className="w-96 mb-2"
+          value={followers.toString()}
+          onChange={handleChangeFollowers}
+        />
+
+        <Button color="primary" onClick={handleClick}>
+          Post
+        </Button>
       </div>
     </main>
   );
