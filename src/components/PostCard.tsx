@@ -6,7 +6,13 @@ import {
   CardFooter,
   Avatar,
   Button,
+  LinkIcon,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
+import { EllipsisVertical } from "lucide-react";
 
 interface Author {
   avatar: string;
@@ -19,11 +25,17 @@ interface Props {
   content: string;
   followings: number;
   followers: number;
+  handleDelete?: () => void;
 }
 
 export default function PostCard(props: Props) {
-
   const [isFollowed, setIsFollowed] = React.useState(false);
+
+  const handleDelete = () => {
+    if (props.handleDelete) {
+      props.handleDelete();
+    }
+  }
 
   return (
     <Card className="max-w-[340px]">
@@ -44,20 +56,36 @@ export default function PostCard(props: Props) {
             </h5>
           </div>
         </div>
-        <Button
-          className={
-            isFollowed
-              ? "bg-transparent text-foreground border-default-200"
-              : ""
-          }
-          color="primary"
-          radius="full"
-          size="sm"
-          variant={isFollowed ? "bordered" : "solid"}
-          onPress={() => setIsFollowed(!isFollowed)}
-        >
-          {isFollowed ? "Unfollow" : "Follow"}
-        </Button>
+
+        <div className="flex items-center gap-1">
+          <Button
+            className={
+              isFollowed
+                ? "bg-transparent text-foreground border-default-200"
+                : ""
+            }
+            color="primary"
+            radius="full"
+            size="sm"
+            variant={isFollowed ? "bordered" : "solid"}
+            onPress={() => setIsFollowed(!isFollowed)}
+          >
+            {isFollowed ? "Unfollow" : "Follow"}
+          </Button>
+
+          <Dropdown className="text-black">
+            <DropdownTrigger>
+              <EllipsisVertical size={16} />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Static Actions">
+              <DropdownItem key="edit">Edit</DropdownItem>
+              <DropdownItem key="delete" className="text-danger" color="danger" onClick={handleDelete}>
+                Delete
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+          
+        </div>
       </CardHeader>
       <CardBody className="px-3 py-0 text-small text-default-400">
         {props.content}

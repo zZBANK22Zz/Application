@@ -1,8 +1,13 @@
+import ConfirmModal from "@/components/ConfirmModal";
+import CreatePostModal from "@/components/CreatePostModal";
 import MyNavbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
-import Title from "@/components/Title";
-import { Avatar, Button, Input, Textarea } from "@nextui-org/react";
-import { ChangeEventHandler, useState } from "react";
+import { Post } from "@/types";
+import {
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
+import { useState } from "react";
 
 // justify -> แกนหลัก
 // items -> แกนรอง
@@ -24,123 +29,74 @@ const DEFAULT_POSTS = [
 // [1,2,3,4,5]
 
 // Spread operator
+// Create Read Update Delete
 
 export default function Home() {
   const [posts, setPosts] = useState(DEFAULT_POSTS);
-  const [content, setContent] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [followings, setFollowings] = useState(0);
-  const [followers, setFollowers] = useState(0);
 
-  const handleClick = () => {
-    const singlePost = {
-      author: {
-        avatar,
-        name,
-        username,
-      },
-      content, //content: content
-      followings,
-      followers,
-    };
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-    setPosts([...posts, singlePost]);
+  const createPostDisclosure = useDisclosure();
+  const confirmModalDisclosure = useDisclosure();
+
+  const handleDelete = (index: number) => {
+    confirmModalDisclosure.onOpen();
+    setSelectedIndex(index);
   };
 
-  const handleChangeUsername: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setUsername(e.target.value);
+  const handleConfirmDelete = () => {
+    const filtered = posts.filter((_, index) => {
+      return index !== selectedIndex;
+    });
+
+    setPosts(filtered);
   };
 
-  const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setName(e.target.value);
-  };
+  const handleCreatePost = () => {
+    createPostDisclosure.onOpen();
+  }
 
-  const handleChangeFollowings: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFollowings(Number(e.target.value));
-  };
-
-  const handleChangeFollowers: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFollowers(Number(e.target.value));
-  };
-
-  const handleChangeContent: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setContent(e.target.value);
-  };
-
-  const handleSelectFile: ChangeEventHandler<HTMLInputElement> = (e) => {
-    if (e.target.files) {
-      const file = e.target.files[0];
-
-      const fileReader = new FileReader();
-
-      fileReader.onload = (result) => {
-        setAvatar(fileReader.result as string);
-      };
-
-      fileReader.readAsDataURL(file);
-    }
-  };
+  const createPost = (post: Post) => {
+    setPosts([...posts, post])
+    createPostDisclosure.onClose();
+  }
 
   return (
-    <main>
+    <main className=" h-[100vh]">
       <MyNavbar />
 
       <div className="grid grid-cols-3 gap-2 mx-20 my-2 mb-20">
         {posts.map((item, index) => {
-          return <PostCard key={index} {...item} />;
+          return (
+            <PostCard
+              key={index}
+              {...item}
+              handleDelete={() => handleDelete(index)}
+            />
+          );
         })}
       </div>
-
-      <div className="flex flex-col items-center pb-2">
-        <h3 className="mb-2">Create a post</h3>
-
-        <div>
-          <div className="flex justify-center mb-2">
-            <label htmlFor="avatar-upload" className="cursor-pointer">
-              <Avatar src={avatar} />
-            </label>
-            <input
-              id="avatar-upload"
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={handleSelectFile}
-            />
-          </div>
-          <Input className="w-96 mb-2" label="Name" onChange={handleChangeName} />
-          <Input
-            className="w-96 mb-2"
-            label="Username"
-            onChange={handleChangeUsername}
-          />
-        </div>
-
-        <Textarea
-          rows={10}
-          placeholder="What's on your mind?"
-          className="w-96 mb-2"
-          onChange={handleChangeContent}
-        />
-
-        <Input
-          label="followings"
-          className="w-96 mb-2"
-          value={followings.toString()}
-          onChange={handleChangeFollowings}
-        />
-        <Input
-          label="followers"
-          className="w-96 mb-2"
-          value={followers.toString()}
-          onChange={handleChangeFollowers}
-        />
-
-        <Button color="primary" onClick={handleClick}>
-          Post
+      
+      <div className="fixed right-20 bottom-10">
+        <Button
+          radius="full"
+          className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+          onClick={handleCreatePost}
+        >
+          +
         </Button>
       </div>
+
+      <CreatePostModal
+        isOpen={createPostDisclosure.isOpen}
+        onOpenChange={createPostDisclosure.onOpenChange}
+        onSubmit={createPost}
+      />
+      <ConfirmModal
+        isOpen={confirmModalDisclosure.isOpen}
+        onOpenChange={confirmModalDisclosure.onOpenChange}
+        onDelete={handleConfirmDelete}
+      />
     </main>
   );
 }
