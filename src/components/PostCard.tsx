@@ -26,6 +26,7 @@ interface Props {
   followings: number;
   followers: number;
   handleDelete?: () => void;
+  handleEdit?: () => void;
 }
 
 export default function PostCard(props: Props) {
@@ -37,8 +38,14 @@ export default function PostCard(props: Props) {
     }
   }
 
+  const handleEdit = () => {
+    if (props.handleEdit) {
+      props.handleEdit();
+    }
+  }
+
   return (
-    <Card className="max-w-[340px]">
+    <Card className="max-w-[500px]">
       <CardHeader className="justify-between">
         <div className="flex gap-5">
           <Avatar
@@ -78,7 +85,7 @@ export default function PostCard(props: Props) {
               <EllipsisVertical size={16} />
             </DropdownTrigger>
             <DropdownMenu aria-label="Static Actions">
-              <DropdownItem key="edit">Edit</DropdownItem>
+              <DropdownItem key="edit" onClick={handleEdit}>Edit</DropdownItem>
               <DropdownItem key="delete" className="text-danger" color="danger" onClick={handleDelete}>
                 Delete
               </DropdownItem>

@@ -24,7 +24,7 @@ export default function ComfirmModal(props: Props) {
                 <Button color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="danger" onPress={props.onDelete}>
+                <Button color="danger" onPress={()=>{props.onDelete && props.onDelete(); onClose();}}>
                   Confirm
                 </Button>
               </ModalFooter>
